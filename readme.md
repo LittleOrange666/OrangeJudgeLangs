@@ -1,0 +1,3 @@
+# OrangeJudgeLangs
+
+這個repo是用來處理動態安裝可用語言的問題
