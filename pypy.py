@@ -1,4 +1,5 @@
 import json
+import platform
 import re
 from itertools import groupby
 
@@ -9,6 +10,13 @@ from tools import download_and_extract
 
 
 def ask_arch():
+    print("Try to detect your architecture")
+    plat = platform.machine()
+    if plat in ("x86_64", "AMD64"):
+        return "x64"
+    if plat in ("aarch64", "arm64"):
+        return "arm64"
+    print("Unknown architecture detected")
     while True:
         print("""please choose your Architecture:
 1. x64 (default)

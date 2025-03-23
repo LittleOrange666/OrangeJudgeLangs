@@ -1,7 +1,5 @@
 import json
-import os
 import re
-import shutil
 from itertools import groupby
 
 import requests
@@ -63,7 +61,7 @@ def main():
             builder.send_cmd(f"cd /langs/python/Python-{x}")
             builder.send_cmd(f"./configure --prefix=/langs/python/python{x} --without-ensurepip")
             builder.send_cmd("make install")
-            builder.send_cmd(f"rm -rf langs/python/Python-{x}")
+            builder.send_cmd(f"rm -rf /langs/python/Python-{x}")
             arg = f"python{x}"
             v = "".join(x.split(".")[:2])
             dat["branches"]["Python" + x] = {
