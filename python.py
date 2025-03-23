@@ -1,8 +1,13 @@
+import json
+import os
 import re
+import shutil
 from itertools import groupby
 
 import requests
 from bs4 import BeautifulSoup
+
+from tools import download_and_extract, Builder
 
 
 def find_versions():
@@ -48,6 +53,30 @@ def main():
         "branches": {},
         "executables": []
     }
+    with Builder() as builder:
+        for x in chosen:
+            link = f"https://www.python.org/ftp/python/{x}/Python-{x}.tgz"
+            print(f"Downloading {link}")
+            download_and_extract(link, f"langs/python")
+        print("Compiling...")
+        for x in chosen:
+            builder.send_cmd(f"cd /langs/python/Python-{x}")
+            builder.send_cmd(f"./configure --prefix=/langs/python/python{x} --without-ensurepip")
+            builder.send_cmd("make install")
+            builder.send_cmd(f"rm -rf langs/python/Python-{x}")
+            arg = f"python{x}"
+            v = "".join(x.split(".")[:2])
+            dat["branches"]["Python" + x] = {
+                "arg": arg,
+                "ext": f"cpython-{v}"
+            }
+            dat["executables"].append(f"/langs/python/{arg}/bin/python3")
+    with open("langs/python/base_python.py", "w") as f:
+        f.write("\n")
+    dat["default_branch"] = "Python" + chosen[0]
+    with open("langs/python.json", "w") as f:
+        json.dump(dat, f, indent=4)
+    print("Python setup completed")
 
 
 if __name__ == '__main__':

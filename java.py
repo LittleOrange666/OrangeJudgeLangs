@@ -1,27 +1,8 @@
 import json
-import tarfile
-from io import BytesIO
 
 import requests
-from tqdm import tqdm
-import tempfile
 
-
-def download_and_extract(link, target):
-    response = requests.get(link, stream=True)
-    total_size = int(response.headers.get('content-length', 0))
-    block_size = 1024
-    progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
-
-    file_obj = BytesIO()
-    for data in response.iter_content(block_size):
-        progress_bar.update(len(data))
-        file_obj.write(data)
-    progress_bar.close()
-
-    file_obj.seek(0)
-    with tarfile.open(fileobj=file_obj, mode="r:*") as tar:
-        tar.extractall(path=target)
+from tools import download_and_extract
 
 
 def ask_arch():
@@ -104,6 +85,8 @@ def main():
             "idx": version
         }
         dat["executables"].append(f"/langs/java/{tag_name}/bin/java")
+        with open("langs/java/BaseJava" + version + ".java", "w") as f:
+            f.write('public class BaseJava'+version+' {\n\tpublic static void main(String[] args) {\n\t}\n}')
     dat["default_branch"] = "Java" + versions[0]
     with open("langs/java.json", "w") as f:
         json.dump(dat, f, indent=4)

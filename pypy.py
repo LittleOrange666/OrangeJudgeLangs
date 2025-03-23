@@ -1,12 +1,11 @@
 import json
 import re
-import tarfile
-from io import BytesIO
 from itertools import groupby
 
 import requests
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+
+from tools import download_and_extract
 
 
 def ask_arch():
@@ -44,23 +43,6 @@ def find_versions(arch_name):
     return versions
 
 
-def download_and_extract(link, target):
-    response = requests.get(link, stream=True)
-    total_size = int(response.headers.get('content-length', 0))
-    block_size = 1024
-    progress_bar = tqdm(total=total_size, unit='iB', unit_scale=True)
-
-    file_obj = BytesIO()
-    for data in response.iter_content(block_size):
-        progress_bar.update(len(data))
-        file_obj.write(data)
-    progress_bar.close()
-
-    file_obj.seek(0)
-    with tarfile.open(fileobj=file_obj, mode="r:*") as tar:
-        tar.extractall(path=target)
-
-
 def main():
     arch = ask_arch()
     print(f"Your architecture is {arch}")
@@ -92,13 +74,14 @@ def main():
         "compile_cmd": ["/langs/pypy/{arg}/bin/pypy3", "-m", "py_compile", "{0}"],
         "exec_cmd": ["/langs/pypy/{arg}/bin/pypy3", "{0}"],
         "branches": {},
-        "executables": []
+        "executables": [],
+        "seccomp_rule": "none"
     }
     for x in chosen:
         a, b = mp[x]
         link = f"https://downloads.python.org/pypy/pypy{a}-{b}-{arch_name}.tar.bz2"
         print(f"Downloading {link}")
-        download_and_extract(link, f"pypy{a}")
+        download_and_extract(link, f"langs/pypy")
         v = a.replace(".", "")
         arg = f"pypy{a}-{b}-{arch_name}"
         dat["branches"]["PyPy" + a] = {
@@ -106,6 +89,8 @@ def main():
             "ext": f"pypy{v}"
         }
         dat["executables"].append(f"/langs/pypy/{arg}/bin/pypy3")
+    with open("langs/pypy/base_pypy.py", "w") as f:
+        f.write("\n")
     dat["default_branch"] = "PyPy" + mp[chosen[0]][0]
     with open("langs/pypy.json", "w") as f:
         json.dump(dat, f, indent=4)
