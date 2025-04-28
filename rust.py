@@ -1,3 +1,4 @@
+import json
 import platform
 import re
 
@@ -89,7 +90,7 @@ def main():
         "require_compile": True,
         "source_ext": ".rs",
         "exec_name": "{0}",
-        "compile_cmd": ["/langs/rust/{arg}/bin/pypy3", "{0}"],
+        "compile_cmd": ["/langs/rust/{arg}/bin/rustc", "{0}"],
         "exec_cmd": ["{0}"],
         "branches": {},
         "executables": [],
@@ -104,10 +105,21 @@ def main():
         print("Installing...")
         for x in chosen:
             a = mp[x]
+            arg = f"rust-{a}"
             path = f"rust-{a}-{arch}-unknown-linux-gnu"
             builder.send_cmd(f"cd /langs/rust/{path}")
-            builder.send_cmd(f"./install.sh --prefix=/langs/rust/{a}")
+            builder.send_cmd(f"./install.sh --prefix=/langs/rust/{arg}")
             builder.send_cmd(f"rm -rf /langs/rust/{path}")
+            dat["branches"]["Rust" + a] = {
+                "arg": arg
+            }
+            dat["executables"].append(f"/langs/rust/{arg}/bin/rustc")
+    with open("langs/rust/base_rust.rs", "w") as f:
+        f.write("fn main(){\n}\n")
+    dat["default_branch"] = "Rust" + chosen[0]
+    with open("langs/rust.json", "w") as f:
+        json.dump(dat, f, indent=4)
+    print("Rust setup completed")
 
 
 if __name__ == "__main__":

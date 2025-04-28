@@ -1,4 +1,5 @@
 import os
+import random
 import tarfile
 from io import BytesIO
 from subprocess import Popen, PIPE
@@ -37,17 +38,14 @@ def download_and_extract(link, target):
 class Builder:
     def __init__(self):
         os.makedirs("langs", exist_ok=True)
-        self.proc = Popen(["docker", "run", "--rm", "-i", "-v", f"{os.getcwd()}/langs:/langs",
-                           "littleorange666/builder", "bash"], stdin=PIPE, text=True)
+        self.container_id = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=12))
+        os.system(f"docker run -d --name {self.container_id} --rm --entrypoint sleep littleorange666/builder infinity")
 
     def send_cmd(self, cmd):
-        self.proc.stdin.write(cmd + "\n")
-        self.proc.stdin.flush()
+        os.system(f"docker exec {self.container_id} -it {cmd}")
 
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.send_cmd("exit")
-        self.proc.stdin.close()
-        self.proc.wait()
+        os.system(f"docker stop {self.container_id}")
