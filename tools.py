@@ -2,7 +2,6 @@ import os
 import random
 import tarfile
 from io import BytesIO
-from subprocess import Popen, PIPE
 
 import requests
 from tqdm import tqdm
