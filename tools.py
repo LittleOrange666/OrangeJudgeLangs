@@ -38,7 +38,7 @@ class Builder:
     def __init__(self):
         os.makedirs("langs", exist_ok=True)
         self.container_id = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=12))
-        os.system(f"docker run -d --name {self.container_id} --rm --entrypoint sleep littleorange666/builder infinity")
+        os.system(f"docker run -v ./langs:/langs -d --name {self.container_id} --rm --entrypoint sleep littleorange666/builder infinity")
 
     def send_cmd(self, cmd):
         os.system(f"docker exec -it {self.container_id} {cmd}")
