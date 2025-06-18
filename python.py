@@ -58,10 +58,10 @@ def main():
             download_and_extract(link, f"langs/python")
         print("Compiling...")
         for x in chosen:
-            builder.send_cmd(f"cd /langs/python/Python-{x}")
-            builder.send_cmd(f"./configure --prefix=/langs/python/python{x} --without-ensurepip")
-            builder.send_cmd("make install")
-            builder.send_cmd(f"rm -rf /langs/python/Python-{x}")
+            path = f"/langs/python/Python-{x}"
+            builder.send_cmd_in(f"./configure --prefix=/langs/python/python{x} --without-ensurepip", path)
+            builder.send_cmd_in("make install", path)
+            builder.send_cmd(f"rm -rf "+path)
             arg = f"python{x}"
             v = "".join(x.split(".")[:2])
             dat["branches"]["Python" + x] = {

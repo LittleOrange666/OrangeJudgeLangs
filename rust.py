@@ -107,9 +107,9 @@ def main():
             a = mp[x]
             arg = f"rust-{a}"
             path = f"rust-{a}-{arch}-unknown-linux-gnu"
-            builder.send_cmd(f"cd /langs/rust/{path}")
-            builder.send_cmd(f"./install.sh --prefix=/langs/rust/{arg}")
-            builder.send_cmd(f"rm -rf /langs/rust/{path}")
+            workdir = f"/langs/rust/{path}"
+            builder.send_cmd_in(f"./install.sh --prefix=/langs/rust/{arg}", workdir)
+            builder.send_cmd(f"rm -rf "+workdir)
             dat["branches"]["Rust" + a] = {
                 "arg": arg
             }

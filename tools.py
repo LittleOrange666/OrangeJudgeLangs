@@ -41,7 +41,10 @@ class Builder:
         os.system(f"docker run -d --name {self.container_id} --rm --entrypoint sleep littleorange666/builder infinity")
 
     def send_cmd(self, cmd):
-        os.system(f"docker exec {self.container_id} -it {cmd}")
+        os.system(f"docker exec -it {self.container_id} {cmd}")
+
+    def send_cmd_in(self, cmd, path):
+        os.system(f"docker exec -it -w {path} {self.container_id} {cmd}")
 
     def __enter__(self):
         return self
