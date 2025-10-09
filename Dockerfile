@@ -4,4 +4,4 @@ WORKDIR /app
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* && apt-get update
 
-RUN apt-get -y install build-essential cmake bzip2 libseccomp-dev
+RUN apt-get -y install build-essential cmake bzip2 libseccomp-dev libffi-dev libssl-dev
