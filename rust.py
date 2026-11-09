@@ -1,11 +1,10 @@
-import json
 import platform
 import re
 
 import requests
 from bs4 import BeautifulSoup
 
-from tools import download_and_extract, Builder
+from tools import download_and_extract, Builder, choose_versions, save_lang_json, write_base_file
 
 
 def ask_arch():
@@ -19,7 +18,7 @@ def ask_arch():
         return "aarch64"
     if plat == "riscv64":
         return "riscv64gc"
-    if plat == "ppc64":
+    if plat in ("ppc64", "ppc64le"):
         return "powerpc64"
     print("Unknown architecture detected")
     while True:
@@ -40,7 +39,7 @@ def ask_arch():
         }
         arch = input("> ")
         if arch == "":
-            return "x64"
+            return "x86_64"
         if arch in table:
             return table[arch]
         if arch in table.values():
@@ -58,7 +57,7 @@ def find_versions(arch_name):
     reg = re.compile(r"https://static.rust-lang.org/dist/rust-(\d+\.\d+\.\d+)-"+arch_name+"-unknown-linux-gnu.tar.gz")
     for a in soup.find_all("a"):
         txt = a.get("href")
-        mh = reg.match(txt)
+        mh = reg.match(txt) if txt else None
         if mh:
             versions.append(mh.groups()[0])
     versions = list(set(versions))
@@ -75,22 +74,13 @@ def main():
         print(f"{i + 1}. rust-{a}")
         mp[str(i + 1)] = a
         mp[a] = a
-    while True:
-        print("Please input the versions you want to download, separated by comma:")
-        inp = input("> ")
-        chosen = inp.split(",")
-        for x in chosen:
-            if x not in mp:
-                print("Invalid version: " + x)
-                break
-        else:
-            break
+    chosen = choose_versions(mp)
     dat = {
         "name": "Rust",
         "require_compile": True,
         "source_ext": ".rs",
         "exec_name": "{0}",
-        "compile_cmd": ["/langs/rust/{arg}/bin/rustc", "{0}"],
+        "compile_cmd": ["/langs/rust/{arg}/bin/rustc", "-O", "--edition=2021", "{0}", "-o", "{1}"],
         "exec_cmd": ["{0}"],
         "branches": {},
         "executables": [],
@@ -114,11 +104,8 @@ def main():
                 "arg": arg
             }
             dat["executables"].append(f"/langs/rust/{arg}/bin/rustc")
-    with open("langs/rust/base_rust.rs", "w") as f:
-        f.write("fn main(){\n}\n")
-    dat["default_branch"] = "Rust" + chosen[0]
-    with open("langs/rust.json", "w") as f:
-        json.dump(dat, f, indent=4)
+    write_base_file("rust", "base_rust.rs", "fn main() {\n}\n")
+    save_lang_json("rust", dat, "Rust" + mp[chosen[0]])
     print("Rust setup completed")
 
 

@@ -1,4 +1,13 @@
 .idea/
+__pycache__/
 langs/java
 langs/python
+langs/pypy
 langs/rust
+langs/go
+langs/javascript
+langs/typescript
+langs/*.json
+!langs/c.json
+!langs/cpp.json
+!langs/text.json

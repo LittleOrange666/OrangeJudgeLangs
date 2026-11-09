@@ -1,4 +1,3 @@
-import json
 import platform
 import re
 from itertools import groupby
@@ -6,7 +5,7 @@ from itertools import groupby
 import requests
 from bs4 import BeautifulSoup
 
-from tools import download_and_extract
+from tools import download_and_extract, choose_versions, save_lang_json, write_base_file
 
 
 def ask_arch():
@@ -64,16 +63,7 @@ def main():
         print(f"{i + 1}. python{a} ({b})")
         mp[str(i + 1)] = (a, b)
         mp[a] = (a, b)
-    while True:
-        print("Please input the versions you want to download, separated by comma:")
-        inp = input("> ")
-        chosen = inp.split(",")
-        for x in chosen:
-            if x not in mp:
-                print("Invalid version: " + x)
-                break
-        else:
-            break
+    chosen = choose_versions(mp)
     dat = {
         "name": "PyPy",
         "require_compile": True,
@@ -97,11 +87,8 @@ def main():
             "ext": f"pypy{v}"
         }
         dat["executables"].append(f"/langs/pypy/{arg}/bin/pypy3")
-    with open("langs/pypy/base_pypy.py", "w") as f:
-        f.write("\n")
-    dat["default_branch"] = "PyPy" + mp[chosen[0]][0]
-    with open("langs/pypy.json", "w") as f:
-        json.dump(dat, f, indent=4)
+    write_base_file("pypy", "base_pypy.py", "\n")
+    save_lang_json("pypy", dat, "PyPy" + mp[chosen[0]][0])
     print("PyPy setup completed")
 
 

@@ -1,11 +1,10 @@
-import json
 import re
 from itertools import groupby
 
 import requests
 from bs4 import BeautifulSoup
 
-from tools import download_and_extract, Builder
+from tools import download_and_extract, Builder, choose_versions, save_lang_json, write_base_file
 
 
 def find_versions():
@@ -31,16 +30,7 @@ def main():
     for i, (k, v) in enumerate(gps):
         l = sorted(map(lambda x:int(x.split(".")[-1]),v))
         print(f"* {k[0]}.{k[1]}.{l[0]}~{l[-1]}")
-    while True:
-        print("Please input the versions you want to download, separated by comma:")
-        inp = input("> ")
-        chosen = inp.split(",")
-        for x in chosen:
-            if x not in versions:
-                print("Invalid version: " + x)
-                break
-        else:
-            break
+    chosen = choose_versions(set(versions))
     dat = {
         "name": "Python",
         "require_compile": True,
@@ -69,11 +59,8 @@ def main():
                 "ext": f"cpython-{v}"
             }
             dat["executables"].append(f"/langs/python/{arg}/bin/python3")
-    with open("langs/python/base_python.py", "w") as f:
-        f.write("\n")
-    dat["default_branch"] = "Python" + chosen[0]
-    with open("langs/python.json", "w") as f:
-        json.dump(dat, f, indent=4)
+    write_base_file("python", "base_python.py", "\n")
+    save_lang_json("python", dat, "Python" + chosen[0])
     print("Python setup completed")
 
 
