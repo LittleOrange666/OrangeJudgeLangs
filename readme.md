@@ -23,6 +23,9 @@
   無法在 `RLIMIT_AS = 2 × 記憶體限制` 下執行，因此設定檔帶有 `"memory_limit_check_only": true`：
   評測時改為比較實際使用量（RSS），位址空間上限放寬為 `2 × 記憶體限制 + 4GB`。
   這需要 judge_server 與 orange_judge 支援 `memory_limit_check_only` 的版本，舊版會忽略此欄位導致這些語言無法執行。
-- Java 使用 `node` seccomp 規則：JVM 啟動時需要以讀寫模式開啟 `/proc/self/coredump_filter`，`golang` 規則會直接終止該執行緒。
+- 腳本安裝的語言（Python、PyPy、Java、Rust、Go、JavaScript、TypeScript）都使用 `runtime` seccomp 規則：
+  允許多執行緒，但禁止建立子程序、執行其他程式、建立 socket、以寫入模式開檔、對其他程序送 signal。
+  被禁止的呼叫會回傳錯誤（程式可以捕捉，通常結果為 RE），不會像 `general`/`golang`/`node` 那樣直接終止執行緒。
+  需要支援 `runtime` 規則的 judge_server 版本。
 - TypeScript 以 `tsc` 編譯（型別錯誤視為 CE，`--strict false`），再以 Node.js 執行；TypeScript 7 以上使用原生編譯器。
 - JavaScript 編譯階段為 `node --check`，語法錯誤會顯示為 CE。

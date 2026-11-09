@@ -39,7 +39,9 @@ def main():
         "compile_cmd": ["/langs/python/{arg}/bin/python3", "-m", "py_compile", "{0}"],
         "exec_cmd": ["/langs/python/{arg}/bin/python3", "{0}"],
         "branches": {},
-        "executables": []
+        "executables": [],
+        # threads allowed; new processes, other programs, sockets, writing files and signalling others are not
+        "seccomp_rule": "runtime"
     }
     with Builder() as builder:
         for x in chosen:

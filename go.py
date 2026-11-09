@@ -55,7 +55,8 @@ def main():
         "exec_cmd": ["{0}"],
         "branches": {},
         "executables": [],
-        "seccomp_rule": "golang",
+        # threads allowed; new processes, other programs, sockets, writing files and signalling others are not
+        "seccomp_rule": "runtime",
         # the runtime reserves far more virtual memory than it uses, limit the RSS instead of the address space
         "memory_limit_check_only": True
     }

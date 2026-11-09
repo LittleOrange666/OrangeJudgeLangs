@@ -73,7 +73,8 @@ def main():
         "exec_cmd": ["/langs/pypy/{arg}/bin/pypy3", "{0}"],
         "branches": {},
         "executables": [],
-        "seccomp_rule": "none"
+        # threads allowed; new processes, other programs, sockets, writing files and signalling others are not
+        "seccomp_rule": "runtime"
     }
     for x in chosen:
         a, b = mp[x]

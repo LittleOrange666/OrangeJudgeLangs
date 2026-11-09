@@ -74,8 +74,8 @@ def main():
         "base_name": "BaseJava{idx}",
         "branches": {},
         "executables": [],
-        # the golang rule forbids opening files for writing, the JVM needs /proc/self/coredump_filter
-        "seccomp_rule": "node",
+        # threads allowed; new processes, other programs, sockets, writing files and signalling others are not
+        "seccomp_rule": "runtime",
         # the runtime reserves far more virtual memory than it uses, limit the RSS instead of the address space
         "memory_limit_check_only": True
     }
